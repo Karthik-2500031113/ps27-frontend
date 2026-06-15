@@ -1,76 +1,53 @@
-import { useEffect, useState }
-from "react";
-
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 function Dashboard() {
 
-    const [requests, setRequests] =
-        useState([]);
+    const [requests, setRequests] = useState([]);
+    const [theme] = useState("theme-blue");
 
-    const [theme,
-    setTheme] =
-    useState("theme-blue");
-
-    const role =
-        localStorage.getItem("role");
+    const role = localStorage.getItem("role");
 
     // ---------------- FETCH REQUESTS ---------------- //
 
     const fetchRequests = () => {
 
         axios.get(
-
             "http://localhost:8000/requests",
-
             {
                 params: {
-
-                    role:
-                    localStorage.getItem(
-                        "role"
-                    ),
-
-                    email:
-                    localStorage.getItem(
-                        "email"
-                    )
+                    role: localStorage.getItem("role"),
+                    email: localStorage.getItem("email")
                 }
             }
         )
         .then((res) => {
-
             setRequests(res.data);
+        })
+        .catch((err) => {
+            console.log(err);
         });
     };
 
     useEffect(() => {
-
         fetchRequests();
-
     }, []);
 
     // ---------------- COUNTS ---------------- //
 
-    const totalRequests =
-        requests.length;
+    const totalRequests = requests.length;
 
-    const activeRequests =
-        requests.filter(
-            (req) =>
-                req.status !== "RESOLVED"
-        ).length;
+    const activeRequests = requests.filter(
+        (req) => req.status !== "RESOLVED"
+    ).length;
 
-    const resolvedRequests =
-        requests.filter(
-            (req) =>
-                req.status === "RESOLVED"
-        ).length;
+    const resolvedRequests = requests.filter(
+        (req) => req.status === "RESOLVED"
+    ).length;
 
     // ---------------- RESOLVE ---------------- //
 
-    const resolveRequest =
-    async (id) => {
+    const resolveRequest = async (id) => {
 
         try {
 
@@ -80,9 +57,7 @@ function Dashboard() {
 
             fetchRequests();
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.log(error);
         }
@@ -90,8 +65,7 @@ function Dashboard() {
 
     // ---------------- DELETE ---------------- //
 
-    const deleteRequest =
-    async (id) => {
+    const deleteRequest = async (id) => {
 
         try {
 
@@ -101,28 +75,15 @@ function Dashboard() {
 
             fetchRequests();
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.log(error);
         }
     };
 
-    // ---------------- LOGOUT ---------------- //
+    return (
 
-    const logout = () => {
-
-        localStorage.clear();
-
-        window.location.href = "/";
-    };
-
-   return (
-
-    <div
-        className={theme}
-    >
+        <div className={theme}>
 
             {/* ---------------- TOP BAR ---------------- */}
 
@@ -135,99 +96,67 @@ function Dashboard() {
             >
 
                 <div
-    className="
-    d-flex
-    align-items-center"
->
+                    className="
+                    d-flex
+                    align-items-center"
+                >
 
-    <div
-        style={{
+                    <div
+                        style={{
+                            width: "55px",
+                            height: "55px",
+                            borderRadius: "16px",
+                            background:
+                                "linear-gradient(135deg,#2563eb,#38bdf8)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "white",
+                            fontWeight: "800",
+                            fontSize: "22px",
+                            marginRight: "16px",
+                            boxShadow:
+                                "0 8px 20px rgba(37,99,235,0.25)"
+                        }}
+                    >
+                        SH
+                    </div>
 
-            width: "55px",
+                    <div>
 
-            height: "55px",
+                        <h1
+                            style={{
+                                marginBottom: "2px",
+                                fontWeight: "800"
+                            }}
+                        >
+                            ServiceHub
+                        </h1>
 
-            borderRadius: "16px",
+                        <p
+                            style={{
+                                color: "#64748b",
+                                marginBottom: "0"
+                            }}
+                        >
+                            Smart Service Request
+                            Management Platform
+                        </p>
 
-            background:
-            "linear-gradient(135deg,#2563eb,#38bdf8)",
+                    </div>
 
-            display: "flex",
-
-            justifyContent: "center",
-
-            alignItems: "center",
-
-            color: "white",
-
-            fontWeight: "800",
-
-            fontSize: "22px",
-
-            marginRight: "16px",
-
-            boxShadow:
-            "0 8px 20px rgba(37,99,235,0.25)"
-        }}
-    >
-
-        SH
-
-    </div>
-
-    <div>
-
-        <h1
-            style={{
-
-                marginBottom: "2px",
-
-                fontWeight: "800"
-            }}
-        >
-
-            ServiceHub
-
-        </h1>
-
-        <p
-            style={{
-
-                color: "#64748b",
-
-                marginBottom: "0"
-            }}
-        >
-
-            Smart Service Request
-            Management Platform
-
-        </p>
-
-    </div>
-
-</div>
+                </div>
 
                 <div>
 
-                    <span
-                        className="
-                        me-3"
-                    >
+                    <span className="me-3">
 
-                        Role:
-                        {" "}
-
-                        <strong>
-                            {role}
-                        </strong>
+                        Role: <strong>{role}</strong>
 
                     </span>
 
-                    
-
                 </div>
-                
+
             </div>
 
             {/* ---------------- STATS ---------------- */}
@@ -288,37 +217,26 @@ function Dashboard() {
 
             <div className="row">
 
-                {
-                   [...requests]
+                {[...requests]
+                    .sort((a, b) => {
 
-.sort((a, b) => {
+                        const priorityOrder = {
+                            HIGH: 3,
+                            MEDIUM: 2,
+                            LOW: 1
+                        };
 
-    const priorityOrder = {
+                        return (
+                            priorityOrder[
+                                b.priority?.priorityName?.toUpperCase()
+                            ] -
+                            priorityOrder[
+                                a.priority?.priorityName?.toUpperCase()
+                            ]
+                        );
+                    })
+                    .map((req) => (
 
-        HIGH: 3,
-        MEDIUM: 2,
-        LOW: 1
-    };
-
-    return (
-
-        priorityOrder[
-            b.priority
-            ?.priorityName
-            ?.toUpperCase()
-        ]
-
-        -
-
-        priorityOrder[
-            a.priority
-            ?.priorityName
-            ?.toUpperCase()
-        ]
-    );
-})
-
-.map((req) => (
                         <div
                             className="col-md-4"
                             key={req.requestId}
@@ -326,148 +244,83 @@ function Dashboard() {
 
                             <div className="card-custom">
 
-                                <h4>
-                                    {req.title}
-                                </h4>
+                                <h4>{req.title}</h4>
+
+                                <p>{req.description}</p>
 
                                 <p>
-                                    {req.description}
+                                    <strong>Category:</strong>{" "}
+                                    {req.category?.categoryName}
                                 </p>
 
                                 <p>
-
-                                    <strong>
-                                        Category:
-                                    </strong>
-
-                                    {" "}
-
-                                    {
-                                        req.category
-                                        ?.categoryName
-                                    }
-
+                                    <strong>Priority:</strong>{" "}
+                                    {req.priority?.priorityName}
                                 </p>
 
                                 <p>
-
-                                    <strong>
-                                        Priority:
-                                    </strong>
-
-                                    {" "}
-
-                                    {
-                                        req.priority
-                                        ?.priorityName
-                                    }
-
+                                    <strong>User:</strong>{" "}
+                                    {req.user?.name}
                                 </p>
-
-                                <p>
-
-                                    <strong>
-                                        User:
-                                    </strong>
-
-                                    {" "}
-
-                                    {
-                                        req.user
-                                        ?.name
-                                    }
-
-                                </p>
-
-                                {/* STATUS */}
 
                                 <div className="mb-3">
 
                                     <span
                                         className={
-
-                                            req.status ===
-                                            "RESOLVED"
-
-                                            ?
-
-                                            "status-badge badge-resolved"
-
-                                            :
-
-                                            "status-badge badge-progress"
+                                            req.status === "RESOLVED"
+                                                ? "status-badge badge-resolved"
+                                                : "status-badge badge-progress"
                                         }
                                     >
-
-                                        {
-                                            req.status
-                                        }
-
+                                        {req.status}
                                     </span>
 
                                 </div>
 
-                                {/* ADMIN BUTTONS */}
-
-                                {
-                                    role === "ADMIN"
-
-                                    &&
+                                {role === "ADMIN" && (
 
                                     <div>
 
-                                        {
-                                            req.status !==
-                                            "RESOLVED"
-
-                                            &&
+                                        {req.status !== "RESOLVED" && (
 
                                             <button
-
-                                                className="
-                                                btn-custom
-                                                me-2"
-
+                                                className="btn-custom me-2"
                                                 onClick={() =>
                                                     resolveRequest(
                                                         req.requestId
                                                     )
                                                 }
                                             >
-
                                                 Resolve
-
                                             </button>
-                                        }
+
+                                        )}
 
                                         <button
-
-                                            className="
-                                            btn btn-danger"
-
+                                            className="btn btn-danger"
                                             onClick={() =>
                                                 deleteRequest(
                                                     req.requestId
                                                 )
                                             }
                                         >
-
                                             Delete
-
                                         </button>
 
                                     </div>
-                                }
+
+                                )}
 
                             </div>
 
                         </div>
-                    ))
-                }
+
+                    ))}
 
             </div>
 
         </div>
+
     );
 }
 
